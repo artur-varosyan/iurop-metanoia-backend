@@ -6,7 +6,7 @@ var s3 = new AWS.S3({
 
 exports.handler = (event, context, callback) => {
 
-    const userID = event.userID;
+    const userID = event.queryStringParameters.userID;
 
     var response
     if (userID == null) {
