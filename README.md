@@ -1,2 +1,7 @@
 # iUROP Metanoia Backend
-### Backend Server for the Metanoia Project
+### Backend prototype for the Metanoia project. Singapore University of Technology and Design iUROP submission.
+
+<br>
+
+## System Architecture
+![System Diagram](docs/system-architecture.png)
