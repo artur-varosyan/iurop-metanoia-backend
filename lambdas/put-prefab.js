@@ -13,7 +13,7 @@ exports.handler = (event, context, callback) => {
         response = missinguserID();
     } else {
         // Check if the user exists in the database
-        // Check whether the use already has a prefab
+        // Check whether the user already has a prefab
         response = generatePresignedURL(userID)
     }
     
