@@ -6,25 +6,25 @@ var s3 = new AWS.S3({
 
 exports.handler = (event, context, callback) => {
 
-    const fileID = event.queryStringParameters.fileID;
+    const userID = event.queryStringParameters.userID;
 
     var response
-    if (fileID == null) {
-        response = missingfileID();
+    if (userID == null) {
+        response = missinguserID();
     } else {
         // Check if the user exists in the database
         // Check whether the use already has a prefab
-        response = generatePresignedURL(fileID)
+        response = generatePresignedURL(userID)
     }
     
     callback(null, response)
 };
 
-function generatePresignedURL(fileID) {
+function generatePresignedURL(userID) {
     
     const url = s3.getSignedUrl('putObject', {
         Bucket: 'metanoia-prefabs',
-        Key: fileID,
+        Key: userID,
         Expires: 600,  // longer expiration for upload
     })
 
@@ -38,11 +38,11 @@ function generatePresignedURL(fileID) {
     return response;
 }
 
-function missingfileID() {
+function missinguserID() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({
-            error: "The fileID is missing in the request body.",
+            error: "The userID is missing in the request body.",
         })
     }
 

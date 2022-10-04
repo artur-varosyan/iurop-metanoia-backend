@@ -1,30 +1,31 @@
 var AWS = require("aws-sdk");
 
+
 var s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
 exports.handler = (event, context, callback) => {
 
-    const fileID = event.queryStringParameters.fileID;
+    const userID = event.queryStringParameters.userID;
 
     var response
-    if (fileID == null) {
-        response = missingfileID();
+    if (userID == null) {
+        response = missinguserID();
     } else {
         // Check if the user and their prefab exist in the database
-        response = generatePresignedURL(fileID)
+        response = generatePresignedURL(userID)
     }
     
     callback(null, response)
 };
 
 // TODO: Change file extension to .prefab
-function generatePresignedURL(fileID) {
+function generatePresignedURL(userID) {
     
     const url = s3.getSignedUrl('getObject', {
         Bucket: 'metanoia-prefabs',
-        Key: fileID,
+        Key: userID,
         Expires: 60,
     });
 
@@ -38,11 +39,11 @@ function generatePresignedURL(fileID) {
     return response;
 }
 
-function missingfileID() {
+function missinguserID() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({
-            error: "The fileID is missing in the request body.",
+            error: "The userID is missing in the request body.",
         })
     }
 
