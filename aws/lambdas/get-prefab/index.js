@@ -1,7 +1,5 @@
 var AWS = require("aws-sdk");
-const mysql = require("mysql2")
-
-let env = process.env
+const { getUserPrefabID } = require("/opt/db_connector")
 
 var s3 = new AWS.S3({
     signatureVersion: 'v4',
@@ -11,57 +9,32 @@ exports.handler = (event, context, callback) => {
 
     const userID = event.queryStringParameters.userID;
 
-    var response
     if (userID == null) {
-        response = missinguserID();
+        callback(null, missinguserID());
     } else {
+        var response;
+        
         // Check if the user and their prefab exist in the database
-        console.log("Hello World");
-        checkIfUserExists(userID);
-        response = generatePresignedURL(userID)
+        getUserPrefabID(userID, function(err, prefabID) {
+            if (err) {
+                response = serverError();
+            }
+            else if (prefabID) {
+                response = generatePresignedURL(prefabID);
+            } else {
+                response = userDoesNotExist();
+            }
+            
+            callback(null, response);
+        });
     }
-    
-    callback(null, response)
 };
 
-function checkIfUserExists(userID) {
-    // Connect to database
-    console.log("Trying to connect");
-    console.log(env);
-    const connection = mysql.createConnection({
-        host: env.DB_HOST,
-        user: env.DB_USER,
-        password: env.DB_PASSWORD,
-        database: env.DB_NAME
-    });
-
-    connection.connect(function(err) {
-        if (err) {
-            console.log("we have a problem: " + err);
-            return console.error('error:' + err.message);
-        }
-
-        console.log('Connected successfully');
-    });
-
-    let sql = 'SELECT first_name FROM User WHERE BIN_TO_UUID(id) = ?'
-    connection.query(sql, [userID], (err, results, fields) => {
-        if (err) {
-            return console.error(err.message);
-        }
-        
-        console.log(results[0]['first_name']);
-    });
-
-    connection.end()
-}
-
-// TODO: Change file extension to .prefab
-function generatePresignedURL(userID) {
+function generatePresignedURL(prefabID) {
     
     const url = s3.getSignedUrl('getObject', {
         Bucket: 'metanoia-prefabs',
-        Key: userID,
+        Key: prefabID + '.prefab',
         Expires: 60,
     });
 
@@ -80,6 +53,28 @@ function missinguserID() {
         statusCode: 400,
         body: JSON.stringify({
             error: "The userID is missing in the request body.",
+        })
+    }
+
+    return response;
+}
+
+function userDoesNotExist() {
+    const response = {
+        statusCode: 404,
+        body: JSON.stringify({
+            error: "The user does not exist.",
+        })
+    }
+
+    return response;
+}
+
+function serverError() {
+    const response = {
+        statusCode: 500,
+        body: JSON.stringify({
+            error: "A server error occurred.",
         })
     }
 

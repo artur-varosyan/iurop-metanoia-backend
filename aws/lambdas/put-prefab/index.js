@@ -1,4 +1,6 @@
 var AWS = require("aws-sdk");
+const { v4: uuidv4 } = require('uuid');
+const { checkIfUserExists } = require("/opt/db_connector")
 
 var s3 = new AWS.S3({
     signatureVersion: 'v4',
@@ -8,23 +10,36 @@ exports.handler = (event, context, callback) => {
 
     const userID = event.queryStringParameters.userID;
 
-    var response
     if (userID == null) {
-        response = missinguserID();
+        callback(null, missinguserID());
     } else {
+        var response;
+        
         // Check if the user exists in the database
-        // Check whether the user already has a prefab
-        response = generatePresignedURL(userID)
+        // TODO: Authenticate the user
+        // TODO: Check whether the user already has a prefab
+        checkIfUserExists(userID, function(err, exists) {
+            if (err) {
+                response = serverError();
+            }
+            else if (exists == true) {
+                const newPrefabID = uuidv4();
+                console.log(newPrefabID);
+                response = generatePresignedURL(newPrefabID);
+            } else {
+                response = userDoesNotExist();
+            }
+            
+            callback(null, response);
+        });
     }
-    
-    callback(null, response)
 };
 
-function generatePresignedURL(userID) {
+function generatePresignedURL(prefabID) {
     
     const url = s3.getSignedUrl('putObject', {
         Bucket: 'metanoia-prefabs',
-        Key: userID,
+        Key: prefabID + '.prefab',
         Expires: 600,  // longer expiration for upload
     })
 
@@ -43,6 +58,28 @@ function missinguserID() {
         statusCode: 400,
         body: JSON.stringify({
             error: "The userID is missing in the request body.",
+        })
+    }
+
+    return response;
+}
+
+function userDoesNotExist() {
+    const response = {
+        statusCode: 404,
+        body: JSON.stringify({
+            error: "The user does not exist.",
+        })
+    }
+
+    return response;
+}
+
+function serverError() {
+    const response = {
+        statusCode: 500,
+        body: JSON.stringify({
+            error: "A server error occurred.",
         })
     }
 
