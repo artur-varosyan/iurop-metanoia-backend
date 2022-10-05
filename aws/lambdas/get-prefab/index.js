@@ -16,7 +16,8 @@ exports.handler = (event, context, callback) => {
         response = missinguserID();
     } else {
         // Check if the user and their prefab exist in the database
-        checkIfUserExists(userID)
+        console.log("Hello World");
+        checkIfUserExists(userID);
         response = generatePresignedURL(userID)
     }
     
@@ -25,6 +26,8 @@ exports.handler = (event, context, callback) => {
 
 function checkIfUserExists(userID) {
     // Connect to database
+    console.log("Trying to connect");
+    console.log(env);
     const connection = mysql.createConnection({
         host: env.DB_HOST,
         user: env.DB_USER,
@@ -34,19 +37,20 @@ function checkIfUserExists(userID) {
 
     connection.connect(function(err) {
         if (err) {
+            console.log("we have a problem: " + err);
             return console.error('error:' + err.message);
         }
 
         console.log('Connected successfully');
     });
 
-    let sql = 'SELECT 1 FROM User WHERE BIN_TO_UUID(id) = ?'
+    let sql = 'SELECT first_name FROM User WHERE BIN_TO_UUID(id) = ?'
     connection.query(sql, [userID], (err, results, fields) => {
         if (err) {
             return console.error(err.message);
         }
-
-        console.log(results);
+        
+        console.log(results[0]['first_name']);
     });
 
     connection.end()
