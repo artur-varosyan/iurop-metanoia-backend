@@ -1,6 +1,6 @@
 var AWS = require("aws-sdk");
 const { v4: uuidv4 } = require('uuid');
-const { checkIfUserExists } = require("/opt/db_connector")
+const { checkIfUserExists, addPrefabRecord } = require("/opt/db_connector")
 
 var s3 = new AWS.S3({
     signatureVersion: 'v4',
@@ -25,7 +25,7 @@ exports.handler = (event, context, callback) => {
             else if (exists == true) {
                 const newPrefabID = uuidv4();
                 console.log(newPrefabID);
-                response = generatePresignedURL(newPrefabID);
+                response = generatePresignedURL(newPrefabID, userID);
             } else {
                 response = userDoesNotExist();
             }
@@ -35,13 +35,19 @@ exports.handler = (event, context, callback) => {
     }
 };
 
-function generatePresignedURL(prefabID) {
+function generatePresignedURL(prefabID, userID) {
+    
+    const metadata = {
+        'userID': userID
+    }
     
     const url = s3.getSignedUrl('putObject', {
         Bucket: 'metanoia-prefabs',
         Key: prefabID + '.prefab',
         Expires: 600,  // longer expiration for upload
+        Metadata: metadata
     })
+
 
     const response = {
         statusCode: 200,

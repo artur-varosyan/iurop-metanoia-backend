@@ -65,3 +65,37 @@ exports.getUserPrefabID = (userID, callback) => {
         }
     });
 }
+
+// TODO: Maybe add a callback call?
+exports.addPrefabRecord = (prefabID, userID) => {
+    const connection = connect();
+
+    let sql = 'INSERT INTO Prefab (id, prefab_owner, modification_date) VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), NOW())';
+
+    return connection.query(sql, [prefabID, userID], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql insert query.");
+            console.log(err);
+        }
+        
+        console.log("Success inserting new prefab record.")
+        connection.end();
+    });
+}
+
+// TODO: Maybe add a callback call?
+exports.updatePrefabRecord = (prefabID, userID) => {
+    const connection = connect();
+
+    let sql = 'UPDATE Prefab SET id = UUID_TO_BIN(?), modification_date = NOW() WHERE prefab_owner = UUID_TO_BIN(?)';
+
+    return connection.query(sql, [prefabID, userID], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql update query.");
+            console.log(err);
+        }
+        
+        console.log("Success updating prefab record.")
+        connection.end();
+    });
+}
