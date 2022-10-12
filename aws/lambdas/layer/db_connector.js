@@ -43,12 +43,20 @@ exports.checkIfUserExists = (userID, callback) => {
     });
 }
 
-exports.getUserPrefabID = (userID, callback) => {
+exports.getUserPrefabID = (userID, username, callback) => {
     const connection = connect();
 
-    let sql = 'SELECT BIN_TO_UUID(id) AS prefabID FROM Prefab WHERE BIN_TO_UUID(prefab_owner) = ?';
+    let identifier;
+    if (userID != null) {
+        identifier = userID;
+        let sql = 'SELECT BIN_TO_UUID(id) AS prefabID FROM Prefab WHERE BIN_TO_UUID(prefab_owner) = ?';
+    } else {
+        identifier = username;
+        let sql = 'SELECT BIN_TO_UUID(Prefab.id) AS prefabID FROM Prefab INNER JOIN User ON User.id = Prefab.prefab_owner WHERE User.username = ?';
+    }
+    
 
-    return connection.query(sql, [userID], (err, results, fields) => {
+    return connection.query(sql, [identifier], (err, results, fields) => {
         if (err) {
             console.error("Failed to execute sql select query.");
             callback(err, null);

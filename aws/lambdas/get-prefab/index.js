@@ -8,14 +8,15 @@ var s3 = new AWS.S3({
 exports.handler = (event, context, callback) => {
 
     const userID = event.queryStringParameters.userID;
+    const username = event.queryStringParameters.username;
 
-    if (userID == null) {
+    if (userID == null && username == null) {
         callback(null, missinguserID());
     } else {
         var response;
         
         // Check if the user and their prefab exist in the database
-        getUserPrefabID(userID, function(err, prefabID) {
+        getUserPrefabID(userID, username, function(err, prefabID) {
             if (err) {
                 response = serverError();
             }
@@ -52,7 +53,7 @@ function missinguserID() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({
-            error: "The userID is missing in the request body.",
+            error: "The userID/username is missing in the request body.",
         })
     }
 
