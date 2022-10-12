@@ -1,4 +1,5 @@
 const mysql = require("mysql2")
+const { v4: uuidv4 } = require('uuid');
 let env = process.env
 
 // Connect to the MySQL database
@@ -105,5 +106,29 @@ exports.updatePrefabRecord = (prefabID, userID) => {
         
         console.log("Success updating prefab record.")
         connection.end();
+    });
+}
+
+exports.addUser = (username, firstName, lastName, company, tokenCount, callback) => {
+    const connection = connect();
+
+    if (tokenCount == null) {
+        tokenCount = 0;
+    }
+
+    const userID = uuidv4();
+    const sql = 'INSERT INTO User (id, username, first_name, last_name, company, token_count) VALUES (?, ?, ?, ?, ?, ?)';
+
+    return connection.query(sql, [userID, username, firstName, lastName, company, tokenCount], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql update query.");
+            console.log(err);
+            callback(null, err);
+        }
+        
+        console.log("Success adding new user.")
+        connection.end();
+
+        callback(null, userID)
     });
 }
