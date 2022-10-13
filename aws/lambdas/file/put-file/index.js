@@ -1,6 +1,6 @@
 var AWS = require("aws-sdk");
 const { v4: uuidv4 } = require('uuid');
-const { checkIfUserExists } = require("/opt/db_connector")
+const { checkIfUserExists, addFileRecord } = require("/opt/db_connector")
 
 var s3 = new AWS.S3({
     signatureVersion: 'v4',
@@ -8,24 +8,35 @@ var s3 = new AWS.S3({
 
 exports.handler = (event, context, callback) => {
 
+    // The unique id of the file owner
     const userID = event.queryStringParameters.userID;
+    const filename = event.queryStringParameters.filename;
+    const altText = event.queryStringParameters.alt_text;
 
-    if (userID == null) {
-        callback(null, missinguserID());
+    if (userID == null || filename == null) {
+        callback(null, missingAttributes());
     } else {
         var response;
         
         // Check if the user exists in the database
         // TODO: Authenticate the user
-        // TODO: Check whether the user already has a prefab
         checkIfUserExists(userID, function(err, exists) {
             if (err) {
                 response = serverError();
             }
             else if (exists == true) {
-                const newPrefabID = uuidv4();
-                console.log(newPrefabID);
-                response = generatePresignedURL(newPrefabID, userID);
+                let response;
+
+                // TODO: Move this to outside of the lambda
+                addFileRecord(filename, altText, userID, function(err, fileID) {
+                    if (err) {
+                        response = serverError();
+                    } else {
+                        response = generatePresignedURL(fileID, filename, userID);
+                    }
+
+                    callback(null, response);
+                });
             } else {
                 response = userDoesNotExist();
             }
@@ -35,15 +46,16 @@ exports.handler = (event, context, callback) => {
     }
 };
 
-function generatePresignedURL(prefabID, userID) {
+function generatePresignedURL(fileID, filename, userID) {
     
     const metadata = {
+        'filename': filename,
         'userID': userID
     }
     
     const url = s3.getSignedUrl('putObject', {
-        Bucket: 'metanoia-prefabs',
-        Key: prefabID + '.prefab',
+        Bucket: 'metanoia-files',
+        Key: fileID,
         Expires: 600,  // longer expiration for upload
         Metadata: metadata
     })
@@ -52,6 +64,7 @@ function generatePresignedURL(prefabID, userID) {
     const response = {
         statusCode: 200,
         body: JSON.stringify({
+            fileID: fileID,
             url: url,
         })
     }
@@ -59,11 +72,11 @@ function generatePresignedURL(prefabID, userID) {
     return response;
 }
 
-function missinguserID() {
+function missingAttributes() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({
-            error: "The userID is missing in the request body.",
+            error: "The userID or filename are missing in the request body.",
         })
     }
 

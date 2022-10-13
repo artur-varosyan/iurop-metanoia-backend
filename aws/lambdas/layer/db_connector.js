@@ -236,3 +236,65 @@ exports.addUserToCompany = (userID, username, callback) => {
         connection.end();
     });
 }
+
+exports.addFileRecord = (filename, altText, userID, callback) => {
+    const connection = connect();
+    const fileID = uuidv4();
+
+    let sql = 'INSERT INTO File (id, filename, alt_text, file_owner) VALUES (UUID_TO_BIN(?), ?, ?, UUID_TO_BIN(?))';
+
+    return connection.query(sql, [fileID, filename, altText, userID], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql insert query.");
+            console.log(err);
+            callback(err, null);
+        } 
+
+        console.log("Success inserting new file record.")
+        connection.end();
+
+        callback(null, fileID);
+    });
+}
+
+exports.getFile = (fileID, callback) => {
+    const connection = connect();
+
+    const sql = 'SELECT BIN_TO_UUID(id) AS fileID, filename, alt_text, BIN_TO_UUID(file_owner) AS userID FROM File WHERE BIN_TO_UUID(id) = ?'
+
+    return connection.query(sql, [fileID], (err, results, fields) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            callback(err, null);
+        }
+        
+        connection.end();
+
+        console.log(results);
+        console.log(results.length);
+        if (results.length == 1) {
+            callback(null, results[0]);
+        } else {
+            callback(null, null);
+        }
+    });
+}
+
+exports.getUserFiles = (userID, callback) => {
+    const connection = connect();
+
+    const sql = 'SELECT BIN_TO_UUID(id) AS fileID, filename, alt_text, BIN_TO_UUID(file_owner) AS userID FROM File WHERE BIN_TO_UUID(file_owner) = ?'
+
+    return connection.query(sql, [userID], (err, results, fields) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            callback(err, null);
+        }
+        
+        connection.end();
+
+        console.log(results);
+        console.log(results.length);
+        callback(null, results);
+    });
+}

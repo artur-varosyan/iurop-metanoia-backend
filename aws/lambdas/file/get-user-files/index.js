@@ -1,6 +1,5 @@
 var AWS = require("aws-sdk");
-const { v4: uuidv4 } = require('uuid');
-const { checkIfUserExists } = require("/opt/db_connector")
+const { checkIfUserExists, getUserFiles } = require("/opt/db_connector")
 
 var s3 = new AWS.S3({
     signatureVersion: 'v4',
@@ -11,55 +10,42 @@ exports.handler = (event, context, callback) => {
     const userID = event.queryStringParameters.userID;
 
     if (userID == null) {
-        callback(null, missinguserID());
+        callback(null, missingUserID());
     } else {
         var response;
         
         // Check if the user exists in the database
         // TODO: Authenticate the user
-        // TODO: Check whether the user already has a prefab
         checkIfUserExists(userID, function(err, exists) {
             if (err) {
-                response = serverError();
+                callback(null, serverError());
             }
             else if (exists == true) {
-                const newPrefabID = uuidv4();
-                console.log(newPrefabID);
-                response = generatePresignedURL(newPrefabID, userID);
+                let response;
+
+                getUserFiles(userID, function(err, files) {
+                    if (err) {
+                        response = serverError();
+                    } else {
+                        response = {
+                            statusCode: 200,
+                            body: JSON.stringify({
+                                files: files
+                            })
+                        }
+                    }
+                    callback(null, response);
+                });
             } else {
-                response = userDoesNotExist();
+                callback(null, userDoesNotExist());
             }
             
-            callback(null, response);
+            
         });
     }
 };
 
-function generatePresignedURL(prefabID, userID) {
-    
-    const metadata = {
-        'userID': userID
-    }
-    
-    const url = s3.getSignedUrl('putObject', {
-        Bucket: 'metanoia-prefabs',
-        Key: prefabID + '.prefab',
-        Expires: 600,  // longer expiration for upload
-        Metadata: metadata
-    })
-
-
-    const response = {
-        statusCode: 200,
-        body: JSON.stringify({
-            url: url,
-        })
-    }
-
-    return response;
-}
-
-function missinguserID() {
+function missingUserID() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({
