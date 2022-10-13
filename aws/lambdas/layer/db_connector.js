@@ -164,3 +164,75 @@ exports.getUser = (userID, username, callback) => {
         connection.end();
     });
 }
+
+exports.addCompany = (name, callback) => {
+    const connection = connect();
+
+    const companyID = uuidv4();
+    const sql = 'INSERT INTO Company (id, company_name) VALUES (?, ?)';
+
+    return connection.query(sql, [companyID, name], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql update query.");
+            console.log(err);
+            callback(null, err);
+        }
+        
+        console.log("Success adding new company.")
+        connection.end();
+
+        callback(null, companyID)
+    });
+}
+
+exports.getCompany = (companyID, callback) => {
+    const connection = connect();
+
+    const sql = 'SELECT BIN_TO_UUID(id) AS companyID, company_name FROM Company WHERE BIN_TO_UUID(id) = ?';
+
+    return connection.query(sql, [companyID], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            console.log(err);
+            callback(null, err);
+        } else if (results.length == 1) {
+            console.log("Success getting company.");
+            callback(null, results[0])
+        } else {
+            console.log("Company cannot be found.");
+            callback(null, null)
+        }
+
+        connection.end();
+    });
+}
+
+exports.addUserToCompany = (userID, username, callback) => {
+    const connection = connect();
+
+    let identifier;
+    let sql;
+    if (userID != null) {
+        identifier = userID;
+        sql = 'UPDATE User SET company = UUID_TO_BIN(?) WHERE id = ?';
+    } else {
+        identifier = username;
+        sql = 'UPDATE User SET company = UUID_TO_BIN(?) WHERE username = ?';
+    }
+
+    return connection.query(sql, [identifier], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql update query.");
+            console.log(err);
+            callback(null, err);
+        } else if (results.affectedRows == 1) {
+            console.log("Success adding user to company.");
+            callback(null, true)
+        } else {
+            console.log("User cannot be found.");
+            callback(null, false)
+        }
+
+        connection.end();
+    });
+}
