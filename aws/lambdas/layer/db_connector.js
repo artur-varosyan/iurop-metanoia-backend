@@ -48,12 +48,13 @@ exports.getUserPrefabID = (userID, username, callback) => {
     const connection = connect();
 
     let identifier;
+    let sql;
     if (userID != null) {
         identifier = userID;
-        let sql = 'SELECT BIN_TO_UUID(id) AS prefabID FROM Prefab WHERE BIN_TO_UUID(prefab_owner) = ?';
+        sql = 'SELECT BIN_TO_UUID(id) AS prefabID FROM Prefab WHERE BIN_TO_UUID(prefab_owner) = ?';
     } else {
         identifier = username;
-        let sql = 'SELECT BIN_TO_UUID(Prefab.id) AS prefabID FROM Prefab INNER JOIN User ON User.id = Prefab.prefab_owner WHERE User.username = ?';
+        sql = 'SELECT BIN_TO_UUID(Prefab.id) AS prefabID FROM Prefab INNER JOIN User ON User.id = Prefab.prefab_owner WHERE User.username = ?';
     }
     
 
@@ -130,5 +131,36 @@ exports.addUser = (username, firstName, lastName, company, tokenCount, callback)
         connection.end();
 
         callback(null, userID)
+    });
+}
+
+exports.getUser = (userID, username, callback) => {
+    const connection = connect();
+
+    let identifier;
+    let sql;
+    if (userID != null) {
+        identifier = userID;
+        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, BIN_TO_UUID(company) AS companyID FROM User WHERE userID = ?';
+    } else {
+        identifier = username;
+        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, BIN_TO_UUID(company) AS companyID FROM User WHERE username = ?';
+    }
+
+    return connection.query(sql, [identifier], (err, results) => {
+
+        if (err) {
+            console.error("Failed to execute sql update query.");
+            console.log(err);
+            callback(null, err);
+        } else if (results.length == 1) {
+            console.log("Success getting new user.");
+            callback(null, results[0])
+        } else {
+            console.log("User cannot be found.");
+            callback(null, results[0])
+        }
+
+        connection.end();
     });
 }
