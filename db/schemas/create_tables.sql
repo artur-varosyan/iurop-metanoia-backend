@@ -26,9 +26,10 @@ CREATE TABLE Prefab (
     FOREIGN KEY (prefab_owner) REFERENCES User(id)
 );
 
-CREATE TABLE ImageFile (
+CREATE TABLE File (
     id BINARY(16) PRIMARY KEY NOT NULL,
-    prefab_owner BINARY(16) NOT NULL,
+    filename VARCHAR(255),
+    file_owner BINARY(16) NOT NULL,
     alt_text VARCHAR(255),
-    FOREIGN KEY (prefab_owner) REFERENCES User(id)
+    FOREIGN KEY (file_owner) REFERENCES User(id)
 );
