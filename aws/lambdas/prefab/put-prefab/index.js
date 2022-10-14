@@ -12,7 +12,7 @@ exports.handler = (event, context, callback) => {
     const userID = event.queryStringParameters.userID;
 
     if (userID == null) {
-        callback(null, missinguserID());
+        callback(null, missingUserID());
     } else {
         var response;
         
@@ -60,7 +60,7 @@ function generatePresignedURL(prefabID, userID) {
     return response;
 }
 
-function missinguserID() {
+function missingUserID() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({

@@ -1,5 +1,5 @@
 var AWS = require("aws-sdk");
-const { getCompany } = require("/opt/db_connector")
+const { getCompany } = require("/opt/db_connector");
 
 exports.handler = (event, context, callback) => {
     if (event.queryStringParameters == null) callback(null, missingCompanyDetails());
@@ -22,7 +22,7 @@ exports.handler = (event, context, callback) => {
                     body: JSON.stringify({
                         company: company,
                     })
-                }
+                };
             }
 
             callback(null, response);

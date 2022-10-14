@@ -38,7 +38,7 @@ function missingCompanyDetails() {
         body: JSON.stringify({
             error: "The company attributes are missing in the request body.",
         })
-    }
+    };
 
     return response;
 }
@@ -49,7 +49,7 @@ function serverError() {
         body: JSON.stringify({
             error: "A server error occurred.",
         })
-    }
+    };
 
     return response;
 }
@@ -60,6 +60,6 @@ function successfulCreation(companyID) {
         body: JSON.stringify({
             companyID: companyID,
         })
-    }
+    };
     return response;
 }
