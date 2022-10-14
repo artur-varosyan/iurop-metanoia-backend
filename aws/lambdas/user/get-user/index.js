@@ -2,6 +2,7 @@ var AWS = require("aws-sdk");
 const { getUser } = require("/opt/db_connector")
 
 exports.handler = (event, context, callback) => {
+    if (event.queryStringParameters == null) callback(null, missingUserDetails());
 
     const username = event.queryStringParameters.username;
     const userID = event.queryStringParameters.userID;

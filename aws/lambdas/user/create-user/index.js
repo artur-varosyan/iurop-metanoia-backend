@@ -8,6 +8,7 @@ var s3 = new AWS.S3({
 });
 
 exports.handler = (event, context, callback) => {
+    if (event.queryStringParameters == null) callback(null, missingUserDetails());
 
     const username = event.queryStringParameters.username;
     const firstName = event.queryStringParameters.first_name;

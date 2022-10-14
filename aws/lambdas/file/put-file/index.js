@@ -7,6 +7,7 @@ var s3 = new AWS.S3({
 });
 
 exports.handler = (event, context, callback) => {
+    if (event.queryStringParameters == null) callback(null, missingAttributes());
 
     // The unique id of the file owner
     const userID = event.queryStringParameters.userID;

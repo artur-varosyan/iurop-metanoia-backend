@@ -6,12 +6,13 @@ var s3 = new AWS.S3({
 });
 
 exports.handler = (event, context, callback) => {
+    if (event.queryStringParameters == null) callback(null, missingUserID());
 
     const userID = event.queryStringParameters.userID;
     const username = event.queryStringParameters.username;
 
     if (userID == null && username == null) {
-        callback(null, missinguserID());
+        callback(null, missingUserID());
     } else {
         var response;
         
@@ -49,7 +50,7 @@ function generatePresignedURL(prefabID) {
     return response;
 }
 
-function missinguserID() {
+function missingUserID() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({
