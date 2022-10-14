@@ -1,5 +1,5 @@
 var AWS = require("aws-sdk");
-const { getUserPrefabID } = require("/opt/db_connector")
+const { getFile } = require("/opt/db_connector")
 
 var s3 = new AWS.S3({
     signatureVersion: 'v4',
@@ -7,22 +7,23 @@ var s3 = new AWS.S3({
 
 exports.handler = (event, context, callback) => {
 
-    const userID = event.queryStringParameters.userID;
+    if (event.queryStringParameters == null) callback(null, missingFileID());
+    const fileID = event.queryStringParameters.fileID;
 
-    if (userID == null) {
-        callback(null, missinguserID());
+    if (fileID == null) {
+        callback(null, missingFileID());
     } else {
         var response;
         
-        // Check if the user and their prefab exist in the database
-        getUserPrefabID(userID, function(err, prefabID) {
+        // Check if the file exists in the database
+        getFile(fileID, function(err, file) {
             if (err) {
                 response = serverError();
             }
-            else if (prefabID) {
-                response = generatePresignedURL(prefabID);
+            else if (file) {
+                response = generatePresignedURL(file);
             } else {
-                response = userDoesNotExist();
+                response = fileDoesNotExist();
             }
             
             callback(null, response);
@@ -30,17 +31,18 @@ exports.handler = (event, context, callback) => {
     }
 };
 
-function generatePresignedURL(prefabID) {
+function generatePresignedURL(file) {
     
     const url = s3.getSignedUrl('getObject', {
-        Bucket: 'metanoia-prefabs',
-        Key: prefabID + '.prefab',
+        Bucket: 'metanoia-files',
+        Key: file.fileID,
         Expires: 60,
     });
 
     const response = {
         statusCode: 200,
         body: JSON.stringify({
+            file_descriptor: file,
             url: url,
         })
     }
@@ -48,22 +50,22 @@ function generatePresignedURL(prefabID) {
     return response;
 }
 
-function missinguserID() {
+function missingFileID() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({
-            error: "The userID is missing in the request body.",
+            error: "The fileID is missing in the request body.",
         })
     }
 
     return response;
 }
 
-function userDoesNotExist() {
+function fileDoesNotExist() {
     const response = {
         statusCode: 404,
         body: JSON.stringify({
-            error: "The user does not exist.",
+            error: "The file does not exist.",
         })
     }
 

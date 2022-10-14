@@ -17,7 +17,7 @@ exports.handler = (event, context) => {
             const userID = data.Metadata.userid;
             
             // Check if a user already has a prefab
-            getUserPrefabID(userID, function(err, exists) {
+            getUserPrefabID(userID, null, function(err, exists) {
                 if (err) {
                     console.log("Error checking if user has prefab.")
                 } else if (exists) {

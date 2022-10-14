@@ -1,31 +1,28 @@
 var AWS = require("aws-sdk");
-const { v4: uuidv4 } = require('uuid');
-const { checkIfUserExists, addPrefabRecord } = require("/opt/db_connector")
+const { getUserPrefabID } = require("/opt/db_connector")
 
 var s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
 exports.handler = (event, context, callback) => {
+    if (event.queryStringParameters == null) callback(null, missingUserID());
 
     const userID = event.queryStringParameters.userID;
+    const username = event.queryStringParameters.username;
 
-    if (userID == null) {
-        callback(null, missinguserID());
+    if (userID == null && username == null) {
+        callback(null, missingUserID());
     } else {
         var response;
         
-        // Check if the user exists in the database
-        // TODO: Authenticate the user
-        // TODO: Check whether the user already has a prefab
-        checkIfUserExists(userID, function(err, exists) {
+        // Check if the user and their prefab exist in the database
+        getUserPrefabID(userID, username, function(err, prefabID) {
             if (err) {
                 response = serverError();
             }
-            else if (exists == true) {
-                const newPrefabID = uuidv4();
-                console.log(newPrefabID);
-                response = generatePresignedURL(newPrefabID, userID);
+            else if (prefabID) {
+                response = generatePresignedURL(prefabID);
             } else {
                 response = userDoesNotExist();
             }
@@ -35,19 +32,13 @@ exports.handler = (event, context, callback) => {
     }
 };
 
-function generatePresignedURL(prefabID, userID) {
+function generatePresignedURL(prefabID) {
     
-    const metadata = {
-        'userID': userID
-    }
-    
-    const url = s3.getSignedUrl('putObject', {
+    const url = s3.getSignedUrl('getObject', {
         Bucket: 'metanoia-prefabs',
         Key: prefabID + '.prefab',
-        Expires: 600,  // longer expiration for upload
-        Metadata: metadata
-    })
-
+        Expires: 60,
+    });
 
     const response = {
         statusCode: 200,
@@ -59,11 +50,11 @@ function generatePresignedURL(prefabID, userID) {
     return response;
 }
 
-function missinguserID() {
+function missingUserID() {
     const response = {
         statusCode: 400,
         body: JSON.stringify({
-            error: "The userID is missing in the request body.",
+            error: "The userID/username is missing in the request body.",
         })
     }
 
