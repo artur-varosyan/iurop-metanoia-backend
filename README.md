@@ -2,7 +2,7 @@
 ### Backend prototype for the Metanoia project. Singapore University of Technology and Design iUROP submission.
 
 ## API
-The API hosted in AWS is now accessible. You may find the documentation [here]()
+The API hosted in AWS is now accessible. You may find the documentation [here](https://documenter.getpostman.com/view/19779478/2s8479xGEC)
 
 ## System Architecture
 ![System Diagram](docs/system-architecture.png)
