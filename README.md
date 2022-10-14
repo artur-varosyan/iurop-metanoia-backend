@@ -1,7 +1,16 @@
 # iUROP Metanoia Backend
 ### Backend prototype for the Metanoia project. Singapore University of Technology and Design iUROP submission.
 
-## Procedure
+## API
+The API hosted in AWS is now accessible. You may find the documentation [here]()
+
+## System Architecture
+![System Diagram](docs/system-architecture.png)
+
+## Database Schema
+![Database Schema](docs/database-schema.png)
+
+## Procedure of Prefab Uploads/Downloads
 ### Uploading a Prefab
 1. Application sends a PUT HTTP Request to API Gateway.
 2. API Gateway triggers the Lambda Function.
@@ -16,9 +25,3 @@
 2. API Gateway triggers the Lambda Function.
 3. Lambda queries the database to find the prefab file id for the given user.
 3. Lambda function generates a temporary *presigned url* to allow to download the prefab asset file directly from the S3 Bucket.
-
-## System Architecture
-![System Diagram](docs/system-architecture.png)
-
-## Database Schema
-![Database Schema](docs/database-schema.png)
