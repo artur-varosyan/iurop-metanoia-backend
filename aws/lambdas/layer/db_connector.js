@@ -141,10 +141,10 @@ exports.getUser = (userID, username, callback) => {
     let sql;
     if (userID != null) {
         identifier = userID;
-        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, BIN_TO_UUID(company) AS companyID FROM User WHERE userID = ?';
+        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count, BIN_TO_UUID(company) AS companyID FROM User WHERE id = ?';
     } else {
         identifier = username;
-        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, BIN_TO_UUID(company) AS companyID FROM User WHERE username = ?';
+        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count, BIN_TO_UUID(company) AS companyID FROM User WHERE username = ?';
     }
 
     return connection.query(sql, [identifier], (err, results) => {
