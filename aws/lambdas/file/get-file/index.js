@@ -1,29 +1,32 @@
-var AWS = require("aws-sdk");
+const AWS = require("aws-sdk");
 const { getFile } = require("/opt/db_connector")
+const Response = require("/opt/response")
 
-var s3 = new AWS.S3({
+const s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
 exports.handler = (event, context, callback) => {
 
-    if (event.queryStringParameters == null) callback(null, missingFileID());
+    if (event.queryStringParameters == null) {
+        callback(null, Response.badRequest("The fileID is missing in the request body."));
+    }
     const fileID = event.queryStringParameters.fileID;
 
     if (fileID == null) {
-        callback(null, missingFileID());
+        callback(null, Response.badRequest("The fileID is missing in the request body."));
     } else {
-        var response;
-        
+        let response;
+
         // Check if the file exists in the database
         getFile(fileID, function(err, file) {
             if (err) {
-                response = serverError();
+                response = Response.serverError();
             }
             else if (file) {
                 response = generatePresignedURL(file);
             } else {
-                response = fileDoesNotExist();
+                response = Response.notFound("The file does not exist.");
             }
             
             callback(null, response);
@@ -39,46 +42,10 @@ function generatePresignedURL(file) {
         Expires: 60,
     });
 
-    const response = {
-        statusCode: 200,
-        body: JSON.stringify({
-            file_descriptor: file,
-            url: url,
-        })
+    const content = {
+        file_descriptor: file,
+        url: url
     }
 
-    return response;
-}
-
-function missingFileID() {
-    const response = {
-        statusCode: 400,
-        body: JSON.stringify({
-            error: "The fileID is missing in the request body.",
-        })
-    }
-
-    return response;
-}
-
-function fileDoesNotExist() {
-    const response = {
-        statusCode: 404,
-        body: JSON.stringify({
-            error: "The file does not exist.",
-        })
-    }
-
-    return response;
-}
-
-function serverError() {
-    const response = {
-        statusCode: 500,
-        body: JSON.stringify({
-            error: "A server error occurred.",
-        })
-    }
-
-    return response;
+    return Response.success(content);
 }

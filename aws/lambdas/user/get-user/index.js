@@ -1,29 +1,30 @@
-var AWS = require("aws-sdk");
+const AWS = require("aws-sdk");
 const { getUser } = require("/opt/db_connector")
+const Response = require("/opt/response")
 
 exports.handler = (event, context, callback) => {
-    if (event.queryStringParameters == null) callback(null, missingUserDetails());
+    if (event.queryStringParameters == null) {
+        callback(null, Response.badRequest("The user attributes are missing in the request body."));
+    }
 
     const username = event.queryStringParameters.username;
     const userID = event.queryStringParameters.userID;
 
     if (username == null && userID == null) {
-        callback(null, missingUserDetails());
+        callback(null, Response.badRequest("The user attributes are missing in the request body."));
     } else {
-        var response;
-        
+        let response;
+
         getUser(userID, username, function(err, user) {
             if (err) {
-                response = serverError();
+                response = Response.serverError();
             } else if (user == null) {
-                response = userDoesNotExist();
+                response = Response.notFound("The user does not exist.");
             } else {
-                response = {
-                    statusCode: 200,
-                    body: JSON.stringify({
-                        user: user,
-                    })
+                const content = {
+                    user: user
                 }
+                response = Response.success(content)
             }
 
             callback(null, response);
@@ -31,36 +32,3 @@ exports.handler = (event, context, callback) => {
 
     }
 };
-
-function missingUserDetails() {
-    const response = {
-        statusCode: 400,
-        body: JSON.stringify({
-            error: "The user attributes are missing in the request body.",
-        })
-    }
-
-    return response;
-}
-
-function userDoesNotExist() {
-    const response = {
-        statusCode: 404,
-        body: JSON.stringify({
-            error: "The user does not exist.",
-        })
-    }
-
-    return response;
-}
-
-function serverError() {
-    const response = {
-        statusCode: 500,
-        body: JSON.stringify({
-            error: "A server error occurred.",
-        })
-    }
-
-    return response;
-}

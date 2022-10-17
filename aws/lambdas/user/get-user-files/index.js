@@ -1,80 +1,46 @@
-var AWS = require("aws-sdk");
+const AWS = require("aws-sdk");
 const { checkIfUserExists, getUserFiles } = require("/opt/db_connector")
+const Response = require("/opt/response")
 
-var s3 = new AWS.S3({
+const s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
 exports.handler = (event, context, callback) => {
-    if (event.queryStringParameters == null) callback(null, missingUserID());
+    if (event.queryStringParameters == null) {
+        callback(null, Response.badRequest("The user attributes are missing in the request body."));
+    }
 
     const userID = event.queryStringParameters.userID;
 
     if (userID == null) {
-        callback(null, missingUserID());
+        callback(null, Response.badRequest("The user attributes are missing in the request body."));
     } else {
-        var response;
-        
+        let response;
+
         // Check if the user exists in the database
         // TODO: Authenticate the user
         checkIfUserExists(userID, function(err, exists) {
             if (err) {
-                callback(null, serverError());
+                callback(null, Response.serverError());
             }
             else if (exists == true) {
                 let response;
 
                 getUserFiles(userID, function(err, files) {
                     if (err) {
-                        response = serverError();
+                        response = Response.serverError();
                     } else {
-                        response = {
-                            statusCode: 200,
-                            body: JSON.stringify({
-                                files: files
-                            })
-                        }
+                        const content = {files: files};
+                        response = Response.success(content);
                     }
                     callback(null, response);
                 });
             } else {
-                callback(null, userDoesNotExist());
+                callback(null, Response.notFound("The user does not exist."));
             }
             
             
         });
     }
 };
-
-function missingUserID() {
-    const response = {
-        statusCode: 400,
-        body: JSON.stringify({
-            error: "The userID is missing in the request body.",
-        })
-    }
-
-    return response;
-}
-
-function userDoesNotExist() {
-    const response = {
-        statusCode: 404,
-        body: JSON.stringify({
-            error: "The user does not exist.",
-        })
-    }
-
-    return response;
-}
-
-function serverError() {
-    const response = {
-        statusCode: 500,
-        body: JSON.stringify({
-            error: "A server error occurred.",
-        })
-    }
-
-    return response;
-}
