@@ -21,10 +21,7 @@ exports.handler = (event, context, callback) => {
             } else if (user == null) {
                 response = Response.notFound("The user does not exist.");
             } else {
-                const content = {
-                    user: user
-                }
-                response = Response.success(content)
+                response = Response.success(user);
             }
 
             callback(null, response);

@@ -20,8 +20,7 @@ exports.handler = (event, context, callback) => {
             } else if (company == null) {
                 response = Response.notFound("The company does not exist.");
             } else {
-                const content = {company: company}
-                response = Response.success(content);
+                response = Response.success(company);
             }
 
             callback(null, response);
