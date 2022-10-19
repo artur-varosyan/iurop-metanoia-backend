@@ -44,6 +44,29 @@ exports.checkIfUserExists = (userID, callback) => {
     });
 }
 
+exports.checkIfCompanyExists = (companyID, callback) => {
+    const connection = connect();
+
+    let sql = 'SELECT 1 FROM Company WHERE BIN_TO_UUID(id) = ?';
+
+    return connection.query(sql, [companyID], (err, results, fields) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            callback(err, null);
+        }
+        
+        connection.end();
+
+        console.log(results);
+        console.log(results.length);
+        if (results.length == 1) {
+            callback(null, true);
+        } else {
+            callback(null, false);
+        }
+    });
+}
+
 exports.getUserPrefabID = (userID, username, callback) => {
     const connection = connect();
 
@@ -110,7 +133,7 @@ exports.updatePrefabRecord = (prefabID, userID) => {
     });
 }
 
-exports.addUser = (username, firstName, lastName, company, tokenCount, callback) => {
+exports.addUser = (username, firstName, lastName, tokenCount, callback) => {
     const connection = connect();
 
     if (tokenCount == null) {
@@ -118,9 +141,9 @@ exports.addUser = (username, firstName, lastName, company, tokenCount, callback)
     }
 
     const userID = uuidv4();
-    const sql = 'INSERT INTO User (id, username, first_name, last_name, company, token_count) VALUES (?, ?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO User (id, username, first_name, last_name, token_count) VALUES (?, ?, ?, ?, ?)';
 
-    return connection.query(sql, [userID, username, firstName, lastName, company, tokenCount], (err, results) => {
+    return connection.query(sql, [userID, username, firstName, lastName, tokenCount], (err, results) => {
         if (err) {
             console.error("Failed to execute sql update query.");
             console.log(err);
@@ -141,10 +164,10 @@ exports.getUser = (userID, username, callback) => {
     let sql;
     if (userID != null) {
         identifier = userID;
-        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count, BIN_TO_UUID(company) AS companyID FROM User WHERE id = ?';
+        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User WHERE id = ?';
     } else {
         identifier = username;
-        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count, BIN_TO_UUID(company) AS companyID FROM User WHERE username = ?';
+        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User WHERE username = ?';
     }
 
     return connection.query(sql, [identifier], (err, results) => {
@@ -286,6 +309,95 @@ exports.getUserFiles = (userID, callback) => {
     const sql = 'SELECT BIN_TO_UUID(id) AS fileID, filename, alt_text, BIN_TO_UUID(file_owner) AS userID FROM File WHERE BIN_TO_UUID(file_owner) = ?'
 
     return connection.query(sql, [userID], (err, results, fields) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            callback(err, null);
+        }
+        
+        connection.end();
+
+        console.log(results);
+        console.log(results.length);
+        callback(null, results);
+    });
+}
+
+exports.getUserCompanies = (userID, callback) => {
+    const connection = connect();
+
+    const sql = 'SELECT BIN_TO_UUID(user_id) AS userID, BIN_TO_UUID(company_id) AS companyID, role FROM CompanyMember WHERE BIN_TO_UUID(user_id) = ?';
+
+    return connection.query(sql, [userID], (err, results, fields) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            callback(err, null);
+        }
+        
+        connection.end();
+
+        console.log(results);
+        console.log(results.length);
+        callback(null, results);
+    });
+}
+
+exports.getCompanyMembers = (companyID, callback) => {
+    const connection = connect();
+
+    const sql = 'SELECT BIN_TO_UUID(user_id) AS userID, BIN_TO_UUID(company_id) AS companyID, role FROM CompanyMember WHERE BIN_TO_UUID(company_id) = ?';
+
+    return connection.query(sql, [companyID], (err, results, fields) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            callback(err, null);
+        }
+        
+        connection.end();
+
+        console.log(results);
+        console.log(results.length);
+        callback(null, results);
+    });
+}
+
+exports.addCompanyMember = (userID, companyID, role, callback) => {
+    const connection = connect();
+
+    const sql = 'INSERT INTO CompanyMember (user_id, company_id, role) VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?)';
+
+    return connection.query(sql, [userID, companyID, role], (err, results, fields) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            callback(err, null);
+        }
+        
+        connection.end();
+        callback(null, true);
+    });
+}
+
+exports.deleteCompanyMember = (userID, companyID, callback) => {
+    const connection = connect();
+
+    const sql = 'DELETE FROM CompanyMember WHERE BIN_TO_UUID(user_id) = ? AND BIN_TO_UUID(company_id) = ?';
+
+    return connection.query(sql, [userID, companyID], (err, results, fields) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            callback(err, null);
+        }
+        
+        connection.end();
+        callback(null, true);
+    });
+}
+
+exports.getAllCompanies = (callback) => {
+    const connection = connect();
+
+    const sql = 'SELECT BIN_TO_UUID(id) AS companyID, company_name FROM Company';
+
+    return connection.query(sql, [], (err, results, fields) => {
         if (err) {
             console.error("Failed to execute sql select query.");
             callback(err, null);

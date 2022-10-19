@@ -16,7 +16,6 @@ exports.handler = (event, context, callback) => {
     const username = event.queryStringParameters.username;
     const firstName = event.queryStringParameters.first_name;
     const lastName = event.queryStringParameters.last_name;
-    const company = event.queryStringParameters.company;
     const tokenCount = event.queryStringParameters.token_count;
 
     if (username == null || firstName == null || lastName == null) {
@@ -25,7 +24,7 @@ exports.handler = (event, context, callback) => {
         let response;
         
         // Create the user
-        addUser(username, firstName, lastName, company, tokenCount, function(err, userID) {
+        addUser(username, firstName, lastName, tokenCount, function(err, userID) {
             if (err) {
                 response = Response.serverError()
             } else {
