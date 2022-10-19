@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS ImageFile;
 DROP TABLE IF EXISTS Prefab;
+DROP TABLE IF EXISTS CompanyMember;
 DROP TABLE IF EXISTS User;
 DROP TABLE IF EXISTS Company;
 
@@ -17,6 +18,15 @@ CREATE TABLE User (
     token_count INT DEFAULT 0,
     PRIMARY KEY (id, username),
     FOREIGN KEY (company) REFERENCES Company(id)
+);
+
+CREATE TABLE CompanyMember (
+    user_id BINARY(16) NOT NULL,
+    company_id BINARY(16) NOT NULL,
+    role VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY(company_id) REFERENCES Company(id),
+    PRIMARY KEY (user_id, company_id)
 );
 
 CREATE TABLE Prefab (
