@@ -173,7 +173,7 @@ exports.getUser = (userID, username, callback) => {
     return connection.query(sql, [identifier], (err, results) => {
 
         if (err) {
-            console.error("Failed to execute sql update query.");
+            console.error("Failed to execute sql select query.");
             console.log(err);
             callback(null, err);
         } else if (results.length == 1) {
@@ -182,6 +182,24 @@ exports.getUser = (userID, username, callback) => {
         } else {
             console.log("User cannot be found.");
             callback(null, results[0])
+        }
+
+        connection.end();
+    });
+}
+
+exports.getAllUsers = (callback) => {
+    const connection = connect();
+
+    const sql = "SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User";
+
+    return connection.query(sql, [], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql select query.");
+            console.log(err);
+            callback(null, err);
+        } else {;
+            callback(null, results)
         }
 
         connection.end();
