@@ -133,27 +133,23 @@ exports.updatePrefabRecord = (prefabID, userID) => {
     });
 }
 
-exports.addUser = (username, firstName, lastName, tokenCount, callback) => {
+exports.addUser = (userID, username, firstName, lastName, tokenCount) => {
     const connection = connect();
 
     if (tokenCount == null) {
         tokenCount = 0;
     }
 
-    const userID = uuidv4();
     const sql = 'INSERT INTO User (id, username, first_name, last_name, token_count) VALUES (?, ?, ?, ?, ?)';
 
     return connection.query(sql, [userID, username, firstName, lastName, tokenCount], (err, results) => {
         if (err) {
             console.error("Failed to execute sql update query.");
             console.log(err);
-            callback(null, err);
         }
         
         console.log("Success adding new user.")
         connection.end();
-
-        callback(null, userID)
     });
 }
 

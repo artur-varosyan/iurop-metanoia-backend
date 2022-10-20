@@ -1,39 +1,22 @@
-// Temporary endpoint for creating new users
+// Create user is now triggered by AWS Cognito
 
 const AWS = require("aws-sdk");
 const { addUser } = require("/opt/db_connector")
-const Response = require("/opt/response")
 
 const s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
 exports.handler = (event, context, callback) => {
-    if (event.queryStringParameters == null) {
-        callback(null, Response.badRequest("The user attributes are missing in the request body."));
-    }
+    console.log(event);
 
-    const username = event.queryStringParameters.username;
-    const firstName = event.queryStringParameters.first_name;
-    const lastName = event.queryStringParameters.last_name;
-    const tokenCount = event.queryStringParameters.token_count;
+    const userID = event.request.userAttributes.sub;
+    const username = event.userName;
+    const firstName = event.request.userAttributes.given_name;
+    const lastName = event.request.userAttributes.family_name;
 
-    if (username == null || firstName == null || lastName == null) {
-        callback(null, Response.badRequest("The user attributes are missing in the request body."));
-    } else {
-        let response;
-        
-        // Create the user
-        addUser(username, firstName, lastName, tokenCount, function(err, userID) {
-            if (err) {
-                response = Response.serverError()
-            } else {
-                const content = {userID: userID}
-                response = Response.created(content);
-            }
+    // Create the user
+    addUser(userID, username, firstName, lastName, null);
 
-            callback(null, response);
-        });
-
-    }
+    callback(null, event);
 };
