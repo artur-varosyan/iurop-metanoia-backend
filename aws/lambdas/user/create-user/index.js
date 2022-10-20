@@ -1,68 +1,22 @@
-// Temporary endpoint for creating new users
+// Create user is now triggered by AWS Cognito
 
-var AWS = require("aws-sdk");
+const AWS = require("aws-sdk");
 const { addUser } = require("/opt/db_connector")
 
-var s3 = new AWS.S3({
+const s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
 exports.handler = (event, context, callback) => {
-    if (event.queryStringParameters == null) callback(null, missingUserDetails());
+    console.log(event);
 
-    const username = event.queryStringParameters.username;
-    const firstName = event.queryStringParameters.first_name;
-    const lastName = event.queryStringParameters.last_name;
-    const company = event.queryStringParameters.company;
-    const tokenCount = event.queryStringParameters.token_count;
+    const userID = event.request.userAttributes.sub;
+    const username = event.userName;
+    const firstName = event.request.userAttributes.given_name;
+    const lastName = event.request.userAttributes.family_name;
 
-    if (username == null || firstName == null || lastName == null) {
-        callback(null, missingUserDetails());
-    } else {
-        var response;
-        
-        // Create the user
-        addUser(username, firstName, lastName, company, tokenCount, function(err, userID) {
-            if (err) {
-                response = serverError();
-            } else {
-                response = successfulCreation(userID);
-            }
+    // Create the user
+    addUser(userID, username, firstName, lastName, null);
 
-            callback(null, response);
-        });
-
-    }
+    callback(null, event);
 };
-
-function missingUserDetails() {
-    const response = {
-        statusCode: 400,
-        body: JSON.stringify({
-            error: "The user attributes are missing in the request body.",
-        })
-    }
-
-    return response;
-}
-
-function serverError() {
-    const response = {
-        statusCode: 500,
-        body: JSON.stringify({
-            error: "A server error occurred.",
-        })
-    }
-
-    return response;
-}
-
-function successfulCreation(userID) {
-    const response = {
-        statusCode: 201,
-        body: JSON.stringify({
-            userID: userID,
-        })
-    }
-    return response;
-}

@@ -1,13 +1,16 @@
-var AWS = require("aws-sdk");
+const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require('uuid');
-const { checkIfUserExists, addFileRecord } = require("/opt/db_connector")
+const { checkIfUserExists, addFileRecord } = require("/opt/db_connector");
+const Response = require("/opt/response");
 
-var s3 = new AWS.S3({
+const s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
 exports.handler = (event, context, callback) => {
-    if (event.queryStringParameters == null) callback(null, missingAttributes());
+    if (event.queryStringParameters == null) {
+        callback(null, Response.badRequest("The userID or filename are missing in the request body."));
+    }
 
     // The unique id of the file owner
     const userID = event.queryStringParameters.userID;
@@ -15,15 +18,15 @@ exports.handler = (event, context, callback) => {
     const altText = event.queryStringParameters.alt_text;
 
     if (userID == null || filename == null) {
-        callback(null, missingAttributes());
+        callback(null, Response.badRequest("The userID or filename are missing in the request body."));
     } else {
-        var response;
-        
+        let response;
+
         // Check if the user exists in the database
         // TODO: Authenticate the user
         checkIfUserExists(userID, function(err, exists) {
             if (err) {
-                response = serverError();
+                response = Response.serverError();
             }
             else if (exists == true) {
                 let response;
@@ -31,7 +34,7 @@ exports.handler = (event, context, callback) => {
                 // TODO: Move this to outside of the lambda
                 addFileRecord(filename, altText, userID, function(err, fileID) {
                     if (err) {
-                        response = serverError();
+                        response = Response.serverError();
                     } else {
                         response = generatePresignedURL(fileID, filename, userID);
                     }
@@ -39,7 +42,7 @@ exports.handler = (event, context, callback) => {
                     callback(null, response);
                 });
             } else {
-                response = userDoesNotExist();
+                response = Response.notFound("The user does not exist.");
             }
             
             callback(null, response);
@@ -62,46 +65,10 @@ function generatePresignedURL(fileID, filename, userID) {
     })
 
 
-    const response = {
-        statusCode: 200,
-        body: JSON.stringify({
-            fileID: fileID,
-            url: url,
-        })
+    const content = {
+        fileID: fileID,
+        url: url
     }
 
-    return response;
-}
-
-function missingAttributes() {
-    const response = {
-        statusCode: 400,
-        body: JSON.stringify({
-            error: "The userID or filename are missing in the request body.",
-        })
-    }
-
-    return response;
-}
-
-function userDoesNotExist() {
-    const response = {
-        statusCode: 404,
-        body: JSON.stringify({
-            error: "The user does not exist.",
-        })
-    }
-
-    return response;
-}
-
-function serverError() {
-    const response = {
-        statusCode: 500,
-        body: JSON.stringify({
-            error: "A server error occurred.",
-        })
-    }
-
-    return response;
+    return Response.success(content);
 }

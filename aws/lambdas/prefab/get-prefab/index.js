@@ -1,30 +1,33 @@
-var AWS = require("aws-sdk");
+const AWS = require("aws-sdk");
 const { getUserPrefabID } = require("/opt/db_connector")
+const Response = require("/opt/response")
 
-var s3 = new AWS.S3({
+const s3 = new AWS.S3({
     signatureVersion: 'v4',
 });
 
 exports.handler = (event, context, callback) => {
-    if (event.queryStringParameters == null) callback(null, missingUserID());
+    if (event.queryStringParameters == null) {
+        callback(null, Response.badRequest("The userID/username is missing in the request body."));
+    }
 
     const userID = event.queryStringParameters.userID;
     const username = event.queryStringParameters.username;
 
     if (userID == null && username == null) {
-        callback(null, missingUserID());
+        callback(null, Response.badRequest("The userID/username is missing in the request body."));
     } else {
-        var response;
-        
+        let response;
+
         // Check if the user and their prefab exist in the database
         getUserPrefabID(userID, username, function(err, prefabID) {
             if (err) {
-                response = serverError();
+                response = Response.serverError()
             }
             else if (prefabID) {
                 response = generatePresignedURL(prefabID);
             } else {
-                response = userDoesNotExist();
+                response = Response.notFound("The user does not exist.")
             }
             
             callback(null, response);
@@ -40,45 +43,6 @@ function generatePresignedURL(prefabID) {
         Expires: 60,
     });
 
-    const response = {
-        statusCode: 200,
-        body: JSON.stringify({
-            url: url,
-        })
-    }
-
-    return response;
-}
-
-function missingUserID() {
-    const response = {
-        statusCode: 400,
-        body: JSON.stringify({
-            error: "The userID/username is missing in the request body.",
-        })
-    }
-
-    return response;
-}
-
-function userDoesNotExist() {
-    const response = {
-        statusCode: 404,
-        body: JSON.stringify({
-            error: "The user does not exist.",
-        })
-    }
-
-    return response;
-}
-
-function serverError() {
-    const response = {
-        statusCode: 500,
-        body: JSON.stringify({
-            error: "A server error occurred.",
-        })
-    }
-
-    return response;
+    const content = {url: url};
+    return Response.success(content);
 }
