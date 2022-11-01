@@ -18,7 +18,7 @@ exports.handler = (event, context) => {
             const filename = data.Metadata.filename;
             const altText = data.Metadata.alttext;
 
-            addFileRecord(filename, altText, userID, function(err, fileID) {
+            addFileRecord(fileID, filename, altText, userID, function(err, fileID) {
                 if (err) {
                     console.log(err);
                 } else {

@@ -29,7 +29,7 @@ exports.handler = (event, context, callback) => {
 
     // File metadata
     const filename = event.queryStringParameters.filename;
-    let altText = event.queryStringParameters.alt_text;
+    let altText = event.queryStringParameters.altText;
     if (altText == null) {
         altText = "";
     }

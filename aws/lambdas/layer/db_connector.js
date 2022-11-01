@@ -275,9 +275,8 @@ exports.addUserToCompany = (userID, username, callback) => {
     });
 }
 
-exports.addFileRecord = (filename, altText, userID, callback) => {
+exports.addFileRecord = (fileID, filename, altText, userID, callback) => {
     const connection = connect();
-    const fileID = uuidv4();
 
     let sql = 'INSERT INTO File (id, filename, alt_text, file_owner) VALUES (UUID_TO_BIN(?), ?, ?, UUID_TO_BIN(?))';
 

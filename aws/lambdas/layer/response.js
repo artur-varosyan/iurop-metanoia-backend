@@ -28,6 +28,15 @@ function badRequest(message) {
     };
 }
 
+function forbidden(message) {
+    return {
+        statusCode: 403,
+        body: JSON.stringify({
+            error: message
+        })
+    };
+}
+
 function notFound(message) {
     return {
         statusCode: 404,
@@ -48,4 +57,4 @@ function serverError() {
     };
 }
 
-module.exports = {success, created, badRequest, notFound, serverError}
+module.exports = {success, created, forbidden, badRequest, notFound, serverError}
