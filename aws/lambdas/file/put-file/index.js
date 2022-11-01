@@ -27,6 +27,7 @@ exports.handler = (event, context, callback) => {
         checkIfUserExists(userID, function(err, exists) {
             if (err) {
                 response = Response.serverError();
+                callback(null, response);
             }
             else if (exists == true) {
                 let response;
@@ -39,19 +40,19 @@ exports.handler = (event, context, callback) => {
                         response = generatePresignedURL(fileID, filename, userID);
                     }
 
-                    callback(null, response);
+                    callback(null, generatePresignedURL(fileID, filename, userID));
                 });
             } else {
                 response = Response.notFound("The user does not exist.");
+                callback(null, response);
             }
-            
-            callback(null, response);
         });
     }
 };
 
 function generatePresignedURL(fileID, filename, userID) {
-    
+    console.log(fileID, filename, userID)
+
     const metadata = {
         'filename': filename,
         'userID': userID

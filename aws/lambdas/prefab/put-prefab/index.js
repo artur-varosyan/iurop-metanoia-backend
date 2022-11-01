@@ -25,16 +25,17 @@ exports.handler = (event, context, callback) => {
         checkIfUserExists(userID, function(err, exists) {
             if (err) {
                 response = Response.serverError();
+                callback(null, response);
             }
             else if (exists == true) {
                 const newPrefabID = uuidv4();
                 console.log(newPrefabID);
                 response = generatePresignedURL(newPrefabID, userID);
+                callback(null, response);
             } else {
                 response = Response.notFound("The user does not exist.");
+                callback(null, response);
             }
-            
-            callback(null, response);
         });
     }
 };
