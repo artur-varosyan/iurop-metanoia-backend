@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require('uuid');
-const { checkIfUserExists } = require("/opt/db_connector")
+const jwt_decode = require('jwt-decode');
 const Response = require("/opt/response")
 
 const s3 = new AWS.S3({
@@ -8,35 +8,27 @@ const s3 = new AWS.S3({
 });
 
 exports.handler = (event, context, callback) => {
-    if (event.queryStringParameters == null) {
-        callback(null, Response.badRequest("The userID/username is missing in the request body."));
+    const authorization = event.headers.authorization;
+
+    if (authorization == null) {
+        callback(null, Response.badRequest("The token is missing in the Authorization header of the request."));
     }
 
-    const userID = event.queryStringParameters.userID;
-
-    if (userID == null) {
-        callback(null, Response.badRequest("The userID/username is missing in the request body."));
-    } else {
-        let response;
-
-        // Check if the user exists in the database
-        // TODO: Authenticate the user
-        // TODO: Check whether the user already has a prefab
-        checkIfUserExists(userID, function(err, exists) {
-            if (err) {
-                response = Response.serverError();
-            }
-            else if (exists == true) {
-                const newPrefabID = uuidv4();
-                console.log(newPrefabID);
-                response = generatePresignedURL(newPrefabID, userID);
-            } else {
-                response = Response.notFound("The user does not exist.");
-            }
-            
-            callback(null, response);
-        });
+    const token = authorization.split(' ')[1];
+    let userID;
+    try {
+        const decodedToken = jwt_decode(token);
+        console.log(decodedToken);
+        userID = decodedToken.sub;
+    } catch (e) {
+        console.log(e);
+        callback(null, Response.badRequest("The JWT token provided is invalid."));
     }
+
+    const newPrefabID = uuidv4();
+    console.log(newPrefabID);
+    const response = generatePresignedURL(newPrefabID, userID);
+    callback(null, response);
 };
 
 function generatePresignedURL(prefabID, userID) {

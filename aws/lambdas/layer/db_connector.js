@@ -140,7 +140,8 @@ exports.addUser = (userID, username, firstName, lastName, tokenCount) => {
         tokenCount = 0;
     }
 
-    const sql = 'INSERT INTO User (id, username, first_name, last_name, token_count) VALUES (?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO User (id, username, first_name, last_name, token_count) VALUES (UUID_TO_BIN(?), ?, ?, ?, ?)';
+    console.log(sql);
 
     return connection.query(sql, [userID, username, firstName, lastName, tokenCount], (err, results) => {
         if (err) {
@@ -194,7 +195,7 @@ exports.getAllUsers = (callback) => {
             console.error("Failed to execute sql select query.");
             console.log(err);
             callback(null, err);
-        } else {;
+        } else {
             callback(null, results)
         }
 
@@ -274,9 +275,8 @@ exports.addUserToCompany = (userID, username, callback) => {
     });
 }
 
-exports.addFileRecord = (filename, altText, userID, callback) => {
+exports.addFileRecord = (fileID, filename, altText, userID, callback) => {
     const connection = connect();
-    const fileID = uuidv4();
 
     let sql = 'INSERT INTO File (id, filename, alt_text, file_owner) VALUES (UUID_TO_BIN(?), ?, ?, UUID_TO_BIN(?))';
 
