@@ -35,7 +35,8 @@ jobs:
       # Run the POSTMAN collection
       - name: Run POSTMAN collection
         run: |
-          newman run --env-var "ID_TOKEN={{ $secrets.ID_TOKEN }}" test/metanoia-collection.json
+          echo $secrets.ID_TOKEN
+          newman run --env-var "ID_TOKEN=$secrets.ID_TOKEN" test/metanoia-collection.json
 
 
       # Upload the contents of Test Results directory to workspace
