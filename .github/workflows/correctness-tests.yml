@@ -12,5 +12,5 @@ jobs:
       - uses: actions/checkout@master
       - uses: matt-ball/newman-action@master
         with:
-          apiKey: ${{ secrets.ID_TOKEN }}
           collection: test/metanoia-collection.json
+          envVar: '[{ "ID_TOKEN": "${{ secrets.ID_TOKEN }}"}]'
