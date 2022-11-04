@@ -161,7 +161,7 @@ exports.getUser = (userID, username, callback) => {
     let sql;
     if (userID != null) {
         identifier = userID;
-        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User WHERE id = ?';
+        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User WHERE BIN_TO_UUID(id) = ?';
     } else {
         identifier = username;
         sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User WHERE username = ?';
