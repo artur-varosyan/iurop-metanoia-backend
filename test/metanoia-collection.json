@@ -1,0 +1,1291 @@
+{
+	"info": {
+		"_postman_id": "34d1766e-58a1-4508-b166-551f282e602d",
+		"name": "Metanoia",
+		"description": "# Backend API for the Metanoia Project\n\nThe API base URL is {{BASE_URL}}/\n\n- GitHub Repository 👉 [here](https://github.com/artur-varosyan/iurop-metanoia-backend).\n- **WARNING:** This is still in development, the data stored in the database may be deleted.\n- Let me know if there are any issues or questions!\n    \n\n**How to Login and use endpoints with Authorization 👉** [here](https://github.com/artur-varosyan/iurop-metanoia-backend/blob/main/docs/how-to-authenticate.md)**.**",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19779478"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "getUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"postman.setNextRequest(\"getUserFiles\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/user/get?userID={{userID}}&username={{username}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"get"
+							],
+							"query": [
+								{
+									"key": "userID",
+									"value": "{{userID}}",
+									"description": "required (or supply username); UUID of existing user"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"description": "required (or supply userID)"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getUser",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/user/get?userID=1234&username=bob.smith",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"user",
+										"get"
+									],
+									"query": [
+										{
+											"key": "userID",
+											"value": "1234"
+										},
+										{
+											"key": "username",
+											"value": "bob.smith",
+											"description": "required (or supply userID)"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"userID\": \"1234\",\n    \"username\": \"bob.smith\",\n    \"first_name\": \"Bob\",\n    \"last_name\": \"Smith\",\n    \"token_count\": 0\n}"
+						}
+					]
+				},
+				{
+					"name": "(DEPRECATED) createUser",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/user/create",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"create"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "bob.smith",
+									"description": "required; unique",
+									"disabled": true
+								},
+								{
+									"key": "first_name",
+									"value": "Bob",
+									"description": "required;",
+									"disabled": true
+								},
+								{
+									"key": "last_name",
+									"value": "Smith",
+									"description": "required;",
+									"disabled": true
+								},
+								{
+									"key": "token_count",
+									"value": "",
+									"description": "optional; integer",
+									"disabled": true
+								}
+							]
+						},
+						"description": "**This request has now been deprecated.**\n\nPlease **create a new user by creating a new account using this** [**link**](https://metanoia.auth.ap-southeast-1.amazoncognito.com/login?client_id=2sc9m89svtrpcsbkd6lirb85e5&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://www.example.com). The successful login or registration will forward to an example domain that will include an _id_token_ parameter in the URL which is a **JWT** token. **In the future, you will be required to add this token in the** _**header**_ **of the requests which require authorization.**"
+					},
+					"response": [
+						{
+							"name": "createUser",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/user/create?username=bob.smith&first_name=Bob&last_name=Smith",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"user",
+										"create"
+									],
+									"query": [
+										{
+											"key": "username",
+											"value": "bob.smith",
+											"description": "required; unique"
+										},
+										{
+											"key": "first_name",
+											"value": "Bob",
+											"description": "required;"
+										},
+										{
+											"key": "last_name",
+											"value": "Smith",
+											"description": "required;"
+										},
+										{
+											"key": "token_count",
+											"value": null,
+											"description": "optional; integer",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"userID\": \"1234\"\n}"
+						}
+					]
+				},
+				{
+					"name": "getUserFiles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ID_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/user/files",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"files"
+							]
+						},
+						"description": "**Authorization Required:** Include the JWT token in the Authorization header of the request.\n\nYou may download an individual file with the **getFile** request using its unique _fileID._"
+					},
+					"response": [
+						{
+							"name": "getUserFiles",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 1234",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/user/files",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"user",
+										"files"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"files\": [\n        {\n            \"fileID\": \"5678\",\n            \"filename\": \"testfile.txt\",\n            \"alt_text\": null,\n            \"userID\": \"1234\"\n        },\n        {\n            \"fileID\": \"9012\",\n            \"filename\": \"testimage.png\",\n            \"alt_text\": \"Test Image\",\n            \"userID\": \"1234\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "getUserCompanies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/user/companies/get?userID={{userID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"companies",
+								"get"
+							],
+							"query": [
+								{
+									"key": "userID",
+									"value": "{{userID}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getUserCompanies",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/user/companies/get?userID=1234",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"user",
+										"companies",
+										"get"
+									],
+									"query": [
+										{
+											"key": "userID",
+											"value": "1234"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"company_memberships\": [\n        {\n            \"userID\": \"1234\",\n            \"companyID\": \"5678\",\n            \"role\": \"Software Engineer\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "getAllUsers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/user/get-all",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"user",
+								"get-all"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getAllUsers",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/user/get-all",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"user",
+										"get-all"
+									]
+								}
+							},
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "[\n    {\n        \"userID\": \"1234\",\n        \"username\": \"bob.smith\",\n        \"first_name\": \"Bob\",\n        \"last_name\": \"Smith\",\n        \"token_count\": 0\n    },\n    {\n        \"userID\": \"5678\",\n        \"username\": \"adam.smith\",\n        \"first_name\": \"Adam\",\n        \"last_name\": \"Smith\",\n        \"token_count\": 0\n    }\n]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Prefab",
+			"item": [
+				{
+					"name": "getPrefab",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"",
+									"    const downloadURL = pm.response.json().url;",
+									"",
+									"    pm.test(\"Pre-Signed Download URL Works\"), function () {",
+									"        pm.sendRequest(downloadURL, function (err, response) {",
+									"            pm.response.to.have.status(200);",
+									"        });",
+									"    };",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/prefab/get?userID={{userID}}&username={{username}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"prefab",
+								"get"
+							],
+							"query": [
+								{
+									"key": "userID",
+									"value": "{{userID}}",
+									"description": "required (or supply username); UUID of existing user"
+								},
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"description": "required (or supply userID)"
+								}
+							]
+						},
+						"description": "Returns a _pre-signed URL -_ use it to download the asset."
+					},
+					"response": [
+						{
+							"name": "getPrefab",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/prefab/get?userID=1234&username=bob.smith",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"prefab",
+										"get"
+									],
+									"query": [
+										{
+											"key": "userID",
+											"value": "1234",
+											"description": "required (or supply username); UUID of existing user"
+										},
+										{
+											"key": "username",
+											"value": "bob.smith",
+											"description": "required (or supply userID)"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"url\": \"https://www.aws.amazon.com\"\n}"
+						}
+					]
+				},
+				{
+					"name": "putPrefab",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"",
+									"    const uploadURL = pm.response.json().url;",
+									"",
+									"    pm.test(\"Pre-Signed Upload URL Works\"), function () {",
+									"        pm.sendRequest(uploadURL, function (err, response) {",
+									"            pm.response.to.have.status(200);",
+									"        });",
+									"    };",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ID_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/prefab/upload",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"prefab",
+								"upload"
+							]
+						},
+						"description": "**Authorization Required:** Include the JWT token in the Authorization header of the request.\n\nReturns a _pre-signed URL -_ use it to upload the asset with an HTTP PUT request."
+					},
+					"response": [
+						{
+							"name": "putPrefab",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 1234",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/prefab/upload",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"prefab",
+										"upload"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"url\": \"https://www.aws.amazon.com\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "File",
+			"item": [
+				{
+					"name": "getFile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"",
+									"    const downloadURL = pm.response.json().url;",
+									"",
+									"    pm.test(\"Pre-Signed Download URL Works\"), function () {",
+									"        pm.sendRequest(downloadURL, function (err, response) {",
+									"            pm.response.to.have.status(200);",
+									"        });",
+									"    };",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ID_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/file/get?fileID={{fileID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"file",
+								"get"
+							],
+							"query": [
+								{
+									"key": "fileID",
+									"value": "{{fileID}}"
+								}
+							]
+						},
+						"description": "**Authorization Required:** Include the JWT token in the Authorization header of the request.\n\nReturns a _pre-signed URL -_ use it to download the file."
+					},
+					"response": [
+						{
+							"name": "getFile",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 1234",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/file/get?fileID=1234",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"file",
+										"get"
+									],
+									"query": [
+										{
+											"key": "fileID",
+											"value": "1234"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{   \"file_descriptor\":{\n        \"fileID\":\"1234\",\n        \"filename\":\"testfile.txt\",\n        \"alt_text\":null,\n        \"userID\":\"5678\"\n    },\n    \"url\":\"https://www.aws.amazon.com\"}"
+						}
+					]
+				},
+				{
+					"name": "putFile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"",
+									"    const uploadURL = pm.response.json().url;",
+									"",
+									"    pm.test(\"Pre-Signed Upload URL Works\"), function () {",
+									"        pm.sendRequest(uploadURL, function (err, response) {",
+									"            pm.response.to.have.status(200);",
+									"        });",
+									"    };",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ID_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/file/upload?filename={{filename}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"file",
+								"upload"
+							],
+							"query": [
+								{
+									"key": "filename",
+									"value": "{{filename}}",
+									"description": "required;"
+								},
+								{
+									"key": "alt_text",
+									"value": "{{altText}}",
+									"description": "optional; alternative text for accessibility",
+									"disabled": true
+								}
+							]
+						},
+						"description": "**Authorization Required:** Include the JWT token in the Authorization header of the request.\n\nReturns a _pre-signed URL -_ use it to upload the file using an HTTP PUT request."
+					},
+					"response": [
+						{
+							"name": "putFile",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer 1234",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/file/upload?filename=file.txt",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"file",
+										"upload"
+									],
+									"query": [
+										{
+											"key": "filename",
+											"value": "file.txt",
+											"description": "required;"
+										},
+										{
+											"key": "alt_text",
+											"value": null,
+											"description": "optional; alternative text for accessibility",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"fileID\": \"5678\",\n    \"url\": \"https://www.aws.amazon.com\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Company",
+			"item": [
+				{
+					"name": "Members",
+					"item": [
+						{
+							"name": "getCompanyMembers",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/company/members/get?companyID={{companyID}}",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"company",
+										"members",
+										"get"
+									],
+									"query": [
+										{
+											"key": "companyID",
+											"value": "{{companyID}}",
+											"description": "required; UUID of existing company"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "getCompanyMembers",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/company/members/get?companyID=1234",
+											"protocol": "https",
+											"host": [
+												"73272wu9e1",
+												"execute-api",
+												"ap-southeast-1",
+												"amazonaws",
+												"com"
+											],
+											"path": [
+												"company",
+												"members",
+												"get"
+											],
+											"query": [
+												{
+													"key": "companyID",
+													"value": "1234",
+													"description": "required; UUID of existing company"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "json",
+									"header": null,
+									"cookie": [],
+									"body": "[\n    {\n        \"userID\": \"5678\",\n        \"companyID\": \"1234\",\n        \"role\": \"Software Engineer\"\n    },\n    {\n        \"userID\": \"0912\",\n        \"companyID\": \"1234\",\n        \"role\": \"Recruiter\"\n    },\n    {\n        \"userID\": \"3456\",\n        \"companyID\": \"1234\",\n        \"role\": \"HR Manager\"\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "addCompanyMember",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/company/members/add?companyID={{companyID}}&userID={{userID}}",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"company",
+										"members",
+										"add"
+									],
+									"query": [
+										{
+											"key": "companyID",
+											"value": "{{companyID}}",
+											"description": "required; UUID of existing company"
+										},
+										{
+											"key": "userID",
+											"value": "{{userID}}",
+											"description": "required; UUID of existing user"
+										},
+										{
+											"key": "role",
+											"value": "staff",
+											"description": "optional;",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "addCompanyMember",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"url": {
+											"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/company/members/add?companyID=5678&userID=1234",
+											"protocol": "https",
+											"host": [
+												"73272wu9e1",
+												"execute-api",
+												"ap-southeast-1",
+												"amazonaws",
+												"com"
+											],
+											"path": [
+												"company",
+												"members",
+												"add"
+											],
+											"query": [
+												{
+													"key": "companyID",
+													"value": "5678",
+													"description": "required; UUID of existing company"
+												},
+												{
+													"key": "userID",
+													"value": "1234",
+													"description": "required; UUID of existing user"
+												},
+												{
+													"key": "role",
+													"value": "staff",
+													"description": "optional;",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": "\"The user has been successfully added as a member to the company.\""
+								}
+							]
+						},
+						{
+							"name": "deleteCompanyMember",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/company/members/delete?companyID={{companyID}}&userID={{userID}}",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"company",
+										"members",
+										"delete"
+									],
+									"query": [
+										{
+											"key": "companyID",
+											"value": "{{companyID}}",
+											"description": "required; UUID of existing company"
+										},
+										{
+											"key": "userID",
+											"value": "{{userID}}",
+											"description": "required; UUID of existing user"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "deleteCompanyMember",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/company/members/delete?companyID=5678&userID=1234",
+											"protocol": "https",
+											"host": [
+												"73272wu9e1",
+												"execute-api",
+												"ap-southeast-1",
+												"amazonaws",
+												"com"
+											],
+											"path": [
+												"company",
+												"members",
+												"delete"
+											],
+											"query": [
+												{
+													"key": "companyID",
+													"value": "5678",
+													"description": "required; UUID of existing company"
+												},
+												{
+													"key": "userID",
+													"value": "1234",
+													"description": "required; UUID of existing user"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": null,
+									"header": null,
+									"cookie": [],
+									"body": "\"The user has been successfully removed from the company.\""
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "getCompany",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"postman.setNextRequest(\"getAllCompanies\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/company/get?companyID={{companyID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"company",
+								"get"
+							],
+							"query": [
+								{
+									"key": "companyID",
+									"value": "{{companyID}}",
+									"description": "required; UUID of existing company"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getCompany",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/company/get?companyID=1234",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"company",
+										"get"
+									],
+									"query": [
+										{
+											"key": "companyID",
+											"value": "1234",
+											"description": "required; UUID of existing company"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"companyID\": \"1234\",\n    \"company_name\": \"ExampleCompany\"\n}"
+						}
+					]
+				},
+				{
+					"name": "createCompany",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/company/create?company_name=ABC",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"company",
+								"create"
+							],
+							"query": [
+								{
+									"key": "company_name",
+									"value": "ABC",
+									"description": "required"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "createCompany",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "createCompany?company_name=ABC",
+									"host": [
+										"createCompany"
+									],
+									"query": [
+										{
+											"key": "company_name",
+											"value": "ABC",
+											"description": "required"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "{\n    \"companyID\": \"1234\"\n}"
+						}
+					]
+				},
+				{
+					"name": "getAllCompanies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/company/get-all",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"company",
+								"get-all"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getAllCompanies",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com/company/get-all",
+									"protocol": "https",
+									"host": [
+										"73272wu9e1",
+										"execute-api",
+										"ap-southeast-1",
+										"amazonaws",
+										"com"
+									],
+									"path": [
+										"company",
+										"get-all"
+									]
+								}
+							},
+							"_postman_previewlanguage": "json",
+							"header": null,
+							"cookie": [],
+							"body": "[\n    {\n        \"companyID\": \"1234\",\n        \"company_name\": \"Company A\"\n    },\n    {\n        \"companyID\": \"5678\",\n        \"company_name\": \"Company B\"\n    }\n]"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "https://73272wu9e1.execute-api.ap-southeast-1.amazonaws.com"
+		},
+		{
+			"key": "ID_TOKEN",
+			"value": "1234",
+			"type": "string"
+		},
+		{
+			"key": "userID",
+			"value": "fd2a7211-67ab-4793-8203-11886b3f47e6",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "bob.smith",
+			"type": "string"
+		},
+		{
+			"key": "fileID",
+			"value": "56587446-a8ef-4985-8328-48092aee8ea9",
+			"type": "string"
+		},
+		{
+			"key": "filename",
+			"value": "file.txt",
+			"type": "string"
+		},
+		{
+			"key": "altText",
+			"value": "Some test file",
+			"type": "string"
+		},
+		{
+			"key": "companyID",
+			"value": "62343262-6238-3164-2d34-6165662d3131",
+			"type": "string"
+		}
+	]
+}
