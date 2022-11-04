@@ -1,0 +1,16 @@
+name: Metanoia API Correctness Test
+
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: matt-ball/newman-action@master
+        with:
+          apiKey: ${{ secrets.ID_TOKEN }}
+          collection: test/metanoia-collection.json
