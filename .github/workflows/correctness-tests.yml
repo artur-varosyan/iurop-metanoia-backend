@@ -13,4 +13,4 @@ jobs:
       - uses: matt-ball/newman-action@master
         with:
           collection: test/metanoia-collection.json
-          envVar: '[{ "ID_TOKEN": "${{ secrets.ID_TOKEN }}"}]'
+          envVar: [{ "key": "ID_TOKEN", "value": "${{ secrets.ID_TOKEN }}" }]'
