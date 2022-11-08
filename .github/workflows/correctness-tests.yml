@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
     - main
+  push:
+    branches:
+    - main
   workflow_dispatch:
 
 jobs:
@@ -34,9 +37,10 @@ jobs:
 
       # Run the POSTMAN collection
       - name: Run POSTMAN collection
+        env:
+          ID_TOKEN: ${{secrets.ID_TOKEN}}
         run: |
-          echo ${{secrets.ID_TOKEN}}
-          newman run --env-var "ID_TOKEN=$secrets.ID_TOKEN" test/metanoia-collection.json
+          newman run --env-var "ID_TOKEN=$ID_TOKEN" test/metanoia-collection.json
 
 
       # Upload the contents of Test Results directory to workspace
