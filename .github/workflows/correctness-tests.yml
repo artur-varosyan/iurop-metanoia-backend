@@ -1,0 +1,38 @@
+name: Metanoia API Functional Test
+
+on:
+  pull_request:
+    branches:
+    - main
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+
+jobs:
+  TestEndpoints:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+
+      # INstall Node on the runner
+      - name: Install Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+
+
+      # Install the newman command line utility
+      - name: Install newman
+        run: |
+          npm install -g newman
+
+
+      # Run the POSTMAN collection
+      - name: Run POSTMAN collection
+        env:
+          ID_TOKEN: ${{secrets.ID_TOKEN}}
+        run: |
+          newman run --env-var "ID_TOKEN=$ID_TOKEN" test/metanoia-collection.json
+
