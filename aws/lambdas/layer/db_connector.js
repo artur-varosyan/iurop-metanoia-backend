@@ -77,7 +77,7 @@ exports.getUserPrefabID = (userID, username, callback) => {
         sql = 'SELECT BIN_TO_UUID(id) AS prefabID FROM Prefab WHERE BIN_TO_UUID(prefab_owner) = ?';
     } else {
         identifier = username;
-        sql = 'SELECT BIN_TO_UUID(Prefab.id) AS prefabID FROM Prefab INNER JOIN User ON User.id = Prefab.prefab_owner WHERE User.username = ?';
+        sql = 'SELECT BIN_TO_UUID(Prefab.id) AS prefabID FROM Prefab INNER JOIN Alias ON Alias.id = Prefab.prefab_owner WHERE Alias.username = ?';
     }
     
 
@@ -140,16 +140,34 @@ exports.addUser = (userID, username, firstName, lastName, tokenCount) => {
         tokenCount = 0;
     }
 
-    const sql = 'INSERT INTO User (id, username, first_name, last_name, token_count) VALUES (UUID_TO_BIN(?), ?, ?, ?, ?)';
+    const sql = 'INSERT INTO User (id, first_name, last_name, token_count) VALUES (UUID_TO_BIN(?), ?, ?, ?)';
     console.log(sql);
 
-    return connection.query(sql, [userID, username, firstName, lastName, tokenCount], (err, results) => {
+    return connection.query(sql, [userID, firstName, lastName, tokenCount], (err, results) => {
         if (err) {
             console.error("Failed to execute sql update query.");
             console.log(err);
         }
         
         console.log("Success adding new user.")
+        console.log("Now adding user alias.")
+        addAlias(userID, username);
+        connection.end();
+    });
+}
+
+function addAlias(userID, username) {
+    const connection = connect();
+
+    const sql = 'INSERT INTO Alias (id, username) VALUES (UUID_TO_BIN(?), ?)';
+
+    return connection.query(sql, [userID, username], (err, results) => {
+        if (err) {
+            console.error("Failed to execute sql update query.");
+            console.log(err);
+        }
+
+        console.log("Success adding user alias");
         connection.end();
     });
 }
@@ -161,10 +179,10 @@ exports.getUser = (userID, username, callback) => {
     let sql;
     if (userID != null) {
         identifier = userID;
-        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User WHERE BIN_TO_UUID(id) = ?';
+        sql = 'SELECT BIN_TO_UUID(User.id) AS userID, Alias.username as username, first_name, last_name, token_count FROM User INNER JOIN Alias ON Alias.id = User.id WHERE BIN_TO_UUID(User.id) = ?';
     } else {
         identifier = username;
-        sql = 'SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User WHERE username = ?';
+        sql = 'SELECT BIN_TO_UUID(User.id) AS userID, Alias.username as username, first_name, last_name, token_count FROM User INNER JOIN Alias ON Alias.id = User.id WHERE Alias.username = ?';
     }
 
     return connection.query(sql, [identifier], (err, results) => {
@@ -188,7 +206,7 @@ exports.getUser = (userID, username, callback) => {
 exports.getAllUsers = (callback) => {
     const connection = connect();
 
-    const sql = "SELECT BIN_TO_UUID(id) AS userID, username, first_name, last_name, token_count FROM User";
+    const sql = "SELECT BIN_TO_UUID(User.id) AS userID, Alias.username AS username, first_name, last_name, token_count FROM User INNER JOIN Alias ON Alias.id = User.id";
 
     return connection.query(sql, [], (err, results) => {
         if (err) {
@@ -239,36 +257,6 @@ exports.getCompany = (companyID, callback) => {
         } else {
             console.log("Company cannot be found.");
             callback(null, null)
-        }
-
-        connection.end();
-    });
-}
-
-exports.addUserToCompany = (userID, username, callback) => {
-    const connection = connect();
-
-    let identifier;
-    let sql;
-    if (userID != null) {
-        identifier = userID;
-        sql = 'UPDATE User SET company = UUID_TO_BIN(?) WHERE id = ?';
-    } else {
-        identifier = username;
-        sql = 'UPDATE User SET company = UUID_TO_BIN(?) WHERE username = ?';
-    }
-
-    return connection.query(sql, [identifier], (err, results) => {
-        if (err) {
-            console.error("Failed to execute sql update query.");
-            console.log(err);
-            callback(null, err);
-        } else if (results.affectedRows == 1) {
-            console.log("Success adding user to company.");
-            callback(null, true)
-        } else {
-            console.log("User cannot be found.");
-            callback(null, false)
         }
 
         connection.end();

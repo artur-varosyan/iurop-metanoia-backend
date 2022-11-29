@@ -20,6 +20,13 @@ CREATE TABLE User (
     FOREIGN KEY (company) REFERENCES Company(id)
 );
 
+CREATE TABLE Alias (
+    id BINARY(16) NOT NULL,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    PRIMARY KEY (id, username),
+    FOREIGN KEY(id) REFERENCES User(id)
+)
+
 CREATE TABLE CompanyMember (
     user_id BINARY(16) NOT NULL,
     company_id BINARY(16) NOT NULL,
